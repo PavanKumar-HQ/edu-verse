@@ -71,26 +71,6 @@ export const DeepTutorPanel: React.FC = () => {
     rec.start();
   }, [isListening]);
 
-  const getResponse = useCallback(async (text: string, history: Msg[]): Promise<string> => {
-    const key = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
-
-    // Keyword-aware fallback (never repeats same template)
-    const smartFallback = (t: string, m: Mode): string => {
-      const tl = t.toLowerCase();
-      if (tl.includes('stuck') || tl.includes('confus') || tl.includes('don\'t understand'))
-        return "🆘 Got it — you're stuck. Let's slow down. Tell me the exact sentence or concept where your understanding breaks. We'll rebuild from there, one brick at a time.";
-      if (tl.includes('quiz') || tl.includes('test') || tl.includes('question'))
-        return "❓ **Quick Quiz on your topic:**\nWhat is the most important foundational concept to understand first?\nA) The surface-level definition\nB) The underlying mechanism ✓\nC) The history of the concept\nD) Advanced edge cases\n\nType A, B, C, or D!";
-      if (tl.includes('motivat') || tl.includes('tired') || tl.includes('give up'))
-        return "🔥 Stop. Look how far you've come — you're here, actively learning when most people aren't. That's the difference between doers and dreamers. Five more minutes. You'll be glad you stayed.";
-      if (tl.includes('explain') || tl.includes('what is') || tl.includes('what are'))
-        return `For "${t}", think of it like building blocks 🧱 — you need the foundation before the walls. What specific aspect of this topic would you like me to break down first?`;
-      if (m === 'quiz') return "❓ Let's test you! What's the core principle behind what you're learning?\nA) Memorizing definitions\nB) Understanding the 'why' behind concepts ✓\nC) Copying examples\nD) Skipping to advanced topics";
-      if (m === 'rescue') return "🆘 Rescue Mode! Step 1: Write down what you DO understand. Step 2: Identify the exact gap. Step 3: Ask me about just that gap. Narrow focus = faster breakthrough!";
-      if (m === 'analogy') return `"${t}" is like a GPS system 🗺️ — you know your destination (goal), the route is your study plan, and traffic jams are the obstacles. Sometimes you need to recalculate!`;
-      return `Great question about "${t}"! The key is to approach this systematically: start with the fundamentals, build small examples, then tackle complexity. What specific angle interests you most?`;
-    };
-
   const getResponse = useCallback(async (text: string, currentHistory: Msg[]) => {
     // Offline Mock Engine for DeepTutor
     const t = text.toLowerCase();
