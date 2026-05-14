@@ -10,11 +10,13 @@ interface TelemetryData {
     difficultyLevel: string;
 }
 
-export const useAdaptiveLearning = (userId: string) => {
+export const useAdaptiveLearning = (userId?: string) => {
     const [currentDifficulty, setCurrentDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
     const [xp, setXp] = useState(0);
     const [recommendations, setRecommendations] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+
+    const resolvedUserId = userId || 'demo_student';
 
     /**
      * Sends telemetry data to the backend and updates the adaptive state.
@@ -25,7 +27,7 @@ export const useAdaptiveLearning = (userId: string) => {
             const response = await fetch('http://localhost:5001/api/v1/progress/log', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, ...data })
+                body: JSON.stringify({ userId: resolvedUserId, ...data })
             });
             
             const result = await response.json();

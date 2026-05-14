@@ -18,6 +18,21 @@ export interface LearningDNA {
   badges: string[];
   completedMissions: string[];
   lastActive: string;
+  // Advanced Features
+  learningStyle: 'visual' | 'auditory' | 'kinesthetic' | 'read-write';
+  paceTrend: 'accelerating' | 'steady' | 'slowing';
+  currentGoal?: {
+    id: string;
+    title: string;
+    deadline: string;
+    progress: number;
+  };
+  dailyQuests: {
+    id: string;
+    text: string;
+    completed: boolean;
+    xp: number;
+  }[];
 }
 
 const DEFAULT_DNA: LearningDNA = {
@@ -38,6 +53,13 @@ const DEFAULT_DNA: LearningDNA = {
   badges: ['first_lab', 'streak_7', 'quiz_ace', 'speed_learner'],
   completedMissions: [],
   lastActive: new Date().toISOString(),
+  learningStyle: 'visual',
+  paceTrend: 'steady',
+  dailyQuests: [
+    { id: '1', text: 'Complete a Cyber Lab', completed: false, xp: 200 },
+    { id: '2', text: 'Master 1 Weak Topic', completed: false, xp: 150 },
+    { id: '3', text: '15 Minute Focus Session', completed: false, xp: 100 }
+  ]
 };
 
 const XP_PER_LEVEL = 500;
@@ -54,14 +76,14 @@ function getRank(level: number): string {
 export function useLearningDNA() {
   const [dna, setDNA] = useState<LearningDNA>(() => {
     try {
-      const saved = localStorage.getItem('geniusphere_dna_v3');
+      const saved = localStorage.getItem('geniusphere_dna_v4');
       if (saved) return { ...DEFAULT_DNA, ...JSON.parse(saved) };
     } catch {}
     return DEFAULT_DNA;
   });
 
   useEffect(() => {
-    localStorage.setItem('geniusphere_dna_v3', JSON.stringify(dna));
+    localStorage.setItem('geniusphere_dna_v4', JSON.stringify(dna));
   }, [dna]);
 
   const addXP = useCallback((amount: number) => {
@@ -78,6 +100,10 @@ export function useLearningDNA() {
         ? [...prev.weakTopics.slice(-4), topic] : prev.weakTopics;
       const newStrong = score >= 80 && !prev.strongTopics.includes(topic)
         ? [...prev.strongTopics.slice(-4), topic] : prev.strongTopics;
+      
+      // Update Mastery Progress if goal exists
+      const newGoal = prev.currentGoal ? { ...prev.currentGoal, progress: Math.min(100, prev.currentGoal.progress + 2) } : undefined;
+
       return {
         ...prev,
         neuralRetention: Math.min(100, prev.neuralRetention + (score >= 70 ? 2 : -3)),
@@ -87,6 +113,7 @@ export function useLearningDNA() {
         strongTopics: newStrong,
         adaptiveDifficulty: score >= 85 ? 'advanced' : score >= 60 ? 'intermediate' : 'beginner',
         burnoutRisk: Math.min(100, prev.burnoutRisk + (score < 50 ? 5 : -2)),
+        currentGoal: newGoal,
       };
     });
     addXP(score >= 80 ? 100 : score >= 60 ? 60 : 30);
@@ -98,6 +125,7 @@ export function useLearningDNA() {
       totalLabsCompleted: prev.totalLabsCompleted + 1,
       practicalSynergy: Math.min(100, prev.practicalSynergy + 3),
       focusFrequency: Math.min(100, prev.focusFrequency + 2),
+      learningStyle: 'kinesthetic', // Lab heavy usage indicates kinesthetic
     }));
     addXP(200);
   }, [addXP]);
@@ -110,8 +138,26 @@ export function useLearningDNA() {
     addXP(150);
   }, [addXP]);
 
+  const setGoal = useCallback((title: string, deadline: string) => {
+    setDNA(prev => ({
+      ...prev,
+      currentGoal: { id: Date.now().toString(), title, deadline, progress: 0 }
+    }));
+  }, []);
+
   const xpInLevel = dna.xp % XP_PER_LEVEL;
   const xpProgress = (xpInLevel / XP_PER_LEVEL) * 100;
 
-  return { dna, addXP, updateAfterQuiz, updateAfterLab, completeMission, xpProgress, xpInLevel, XP_PER_LEVEL };
+  return { 
+    dna, 
+    addXP, 
+    updateAfterQuiz, 
+    updateAfterLab, 
+    completeMission, 
+    setGoal,
+    xpProgress, 
+    xpInLevel, 
+    XP_PER_LEVEL 
+  };
 }
+

@@ -54,8 +54,22 @@ const RISK_COLORS: Record<string, string> = {
   Low:    'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
 };
 
+import { useAppContext } from '../context/AppContext';
+
 export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'courses' | 'ai'>('overview');
+  const { platformStats, radarStats, updateRadarStat } = useAppContext();
+
+  // Map icons from strings
+  const IconMap: Record<string, any> = { Users, TrendingUp, Activity, Brain, Zap, AlertTriangle };
+
+  const simulateActivity = () => {
+    // Randomly boost radar stats
+    radarStats.forEach(stat => {
+      const boost = Math.floor(Math.random() * 5) + 1;
+      updateRadarStat(stat.subject, Math.min(100, stat.A + boost));
+    });
+  };
 
   return (
     <div className="space-y-8 p-6">
@@ -66,6 +80,9 @@ export const AdminDashboard: React.FC = () => {
           <p className="text-slate-400 text-sm mt-1">Real-time analytics · AI monitoring · Institution reporting</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={simulateActivity} className="px-4 py-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 rounded-xl text-xs font-bold hover:bg-emerald-500/30 transition-all flex items-center gap-2">
+            <Activity size={14} /> Simulate Activity
+          </button>
           {(['overview', 'courses', 'ai'] as const).map(t => (
             <button key={t} onClick={() => setActiveTab(t)}
               className={`px-4 py-2 rounded-xl text-xs font-bold capitalize border transition-all ${activeTab === t ? 'bg-blue-600 text-white border-blue-500' : 'bg-white/5 text-slate-400 border-white/10 hover:text-white'}`}>
@@ -77,20 +94,23 @@ export const AdminDashboard: React.FC = () => {
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {PLATFORM_STATS.map((stat, i) => (
-          <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-4 rounded-2xl">
-            <div className={`p-2 ${stat.bg} rounded-xl w-fit mb-3`}>
-              <stat.icon size={16} className={stat.color} />
-            </div>
-            <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">{stat.label}</p>
-            <p className="text-white font-bold text-lg leading-none mb-1">{stat.value}</p>
-            <div className={`flex items-center gap-1 text-[10px] font-bold ${stat.up ? 'text-emerald-400' : 'text-red-400'}`}>
-              {stat.up ? <ArrowUp size={10} /> : <ArrowDown size={10} />}
-              {stat.change} this month
-            </div>
-          </motion.div>
-        ))}
+        {platformStats.map((stat, i) => {
+          const IconComp = IconMap[stat.icon] || Activity;
+          return (
+            <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-4 rounded-2xl">
+              <div className={`p-2 ${stat.bg} rounded-xl w-fit mb-3`}>
+                <IconComp size={16} className={stat.color} />
+              </div>
+              <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">{stat.label}</p>
+              <p className="text-white font-bold text-lg leading-none mb-1">{stat.value}</p>
+              <div className={`flex items-center gap-1 text-[10px] font-bold ${stat.up ? 'text-emerald-400' : 'text-red-400'}`}>
+                {stat.up ? <ArrowUp size={10} /> : <ArrowDown size={10} />}
+                {stat.change} this month
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {activeTab === 'overview' && (

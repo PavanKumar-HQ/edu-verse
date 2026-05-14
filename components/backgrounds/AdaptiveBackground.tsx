@@ -20,8 +20,8 @@ export const AdaptiveBackground: React.FC<AdaptiveBackgroundProps> = ({ state })
         let height = window.innerHeight;
         let animationFrameId: number;
 
-        const STAR_COUNT = 150;
-        const METEOR_FREQUENCY = 0.02;
+        const STAR_COUNT = 200;
+        const METEOR_FREQUENCY = 0.08; // Significantly increased for wow factor
 
         interface Star {
             x: number;
@@ -49,19 +49,19 @@ export const AdaptiveBackground: React.FC<AdaptiveBackgroundProps> = ({ state })
                 stars.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
-                    radius: Math.random() * 1.2,
+                    radius: Math.random() * 1.5,
                     alpha: Math.random(),
-                    twinkleSpeed: (Math.random() - 0.5) * 0.015
+                    twinkleSpeed: (Math.random() - 0.5) * 0.02
                 });
             }
         };
 
         const createMeteor = () => {
             meteors.push({
-                x: Math.random() * width + 200,
-                y: Math.random() * height * 0.5 - 100,
-                length: Math.random() * 80 + 40,
-                speed: Math.random() * 15 + 10,
+                x: Math.random() * width + 400,
+                y: Math.random() * height * 0.4 - 100,
+                length: Math.random() * 120 + 60,
+                speed: Math.random() * 15 + 12,
                 angle: Math.PI * 0.75,
                 alpha: 1
             });
@@ -82,10 +82,10 @@ export const AdaptiveBackground: React.FC<AdaptiveBackgroundProps> = ({ state })
             ctx.clearRect(0, 0, width, height);
 
             // Background Tint based on state
-            let tint = 'rgba(2, 6, 23, 1)';
-            if (state === 'cyber') tint = 'rgba(2, 20, 20, 1)';
-            if (state === 'ai') tint = 'rgba(10, 10, 30, 1)';
-            if (state === 'finance') tint = 'rgba(15, 10, 25, 1)';
+            let tint = '#020617'; // slate-950
+            if (state === 'cyber') tint = '#020f0f';
+            if (state === 'ai') tint = '#0a0a1e';
+            if (state === 'finance') tint = '#0f0a19';
             
             ctx.fillStyle = tint;
             ctx.fillRect(0, 0, width, height);
@@ -108,23 +108,39 @@ export const AdaptiveBackground: React.FC<AdaptiveBackgroundProps> = ({ state })
                 const m = meteors[i];
                 m.x -= m.speed;
                 m.y += m.speed;
-                m.alpha -= 0.01;
+                m.alpha -= 0.012;
 
                 if (m.alpha <= 0) {
                     meteors.splice(i, 1);
                     continue;
                 }
 
+                // Meteor Tail
                 const grad = ctx.createLinearGradient(m.x, m.y, m.x + m.length, m.y - m.length);
+                let tailColor = '59, 130, 246'; // blue
+                if (state === 'cyber') tailColor = '16, 185, 129'; // emerald
+                if (state === 'finance') tailColor = '139, 92, 246'; // purple
+
                 grad.addColorStop(0, `rgba(255, 255, 255, ${m.alpha})`);
-                grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+                grad.addColorStop(0.1, `rgba(${tailColor}, ${m.alpha * 0.8})`);
+                grad.addColorStop(1, `rgba(${tailColor}, 0)`);
 
                 ctx.strokeStyle = grad;
                 ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
                 ctx.beginPath();
                 ctx.moveTo(m.x, m.y);
                 ctx.lineTo(m.x + m.length, m.y - m.length);
                 ctx.stroke();
+
+                // Meteor Head Glow
+                ctx.beginPath();
+                ctx.arc(m.x, m.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = `rgb(${tailColor})`;
+                ctx.fill();
+                ctx.shadowBlur = 0;
             }
 
             animationFrameId = requestAnimationFrame(animate);
@@ -140,7 +156,7 @@ export const AdaptiveBackground: React.FC<AdaptiveBackgroundProps> = ({ state })
     return (
         <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
             <canvas ref={canvasRef} className="absolute inset-0" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
             
             {/* Dynamic Glow Overlay based on state */}
             <AnimatePresence mode="wait">
@@ -158,8 +174,12 @@ export const AdaptiveBackground: React.FC<AdaptiveBackgroundProps> = ({ state })
                     {state === 'ai' && (
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(59,130,246,0.1),transparent)]" />
                     )}
+                    {state === 'finance' && (
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(139,92,246,0.1),transparent)]" />
+                    )}
                 </motion.div>
             </AnimatePresence>
         </div>
     );
 };
+

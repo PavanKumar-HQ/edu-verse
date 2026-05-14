@@ -5,17 +5,16 @@ import {
     ResponsiveContainer 
 } from 'recharts';
 import { Brain, Zap, Target, Shield, Clock, Search } from 'lucide-react';
-
-const DATA = [
-    { subject: 'Logic', A: 85, fullMark: 100 },
-    { subject: 'Memory', A: 65, fullMark: 100 },
-    { subject: 'Speed', A: 92, fullMark: 100 },
-    { subject: 'Precision', A: 78, fullMark: 100 },
-    { subject: 'Security', A: 88, fullMark: 100 },
-    { subject: 'Research', A: 70, fullMark: 100 },
-];
+import { useAppContext } from '../context/AppContext';
 
 export const CognitiveRadar: React.FC = () => {
+    const { radarStats } = useAppContext();
+
+    // Determine dominant and needs focus dynamically
+    const sortedStats = [...radarStats].sort((a, b) => b.A - a.A);
+    const dominant = sortedStats[0]?.subject || 'None';
+    const focus = sortedStats[sortedStats.length - 1]?.subject || 'None';
+
     return (
         <div className="bg-slate-950/40 backdrop-blur-3xl border border-white/5 rounded-[32px] p-8 h-full flex flex-col">
             <div className="mb-6">
@@ -30,7 +29,7 @@ export const CognitiveRadar: React.FC = () => {
 
             <div className="flex-1 min-h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={DATA}>
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarStats}>
                         <PolarGrid stroke="#ffffff10" />
                         <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }} />
                         <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
@@ -52,13 +51,13 @@ export const CognitiveRadar: React.FC = () => {
                     <div className="flex items-center gap-2 text-blue-400 text-[10px] font-bold uppercase mb-1">
                         <Zap size={12} /> Dominant
                     </div>
-                    <div className="text-white font-bold">Speed Master</div>
+                    <div className="text-white font-bold">{dominant}</div>
                 </div>
                 <div className="p-3 bg-white/5 rounded-2xl border border-white/5">
                     <div className="flex items-center gap-2 text-orange-400 text-[10px] font-bold uppercase mb-1">
                         <Brain size={12} /> Needs Focus
                     </div>
-                    <div className="text-white font-bold">Memory Retention</div>
+                    <div className="text-white font-bold">{focus}</div>
                 </div>
             </div>
         </div>

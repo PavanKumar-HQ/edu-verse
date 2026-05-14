@@ -20,6 +20,7 @@ import { DailyQuests } from './gamification/DailyQuests';
 import { MissionControl } from './dashboard/MissionControl';
 import { TeacherDashboard } from './dashboard/TeacherDashboard';
 import { AdminDashboard } from './dashboard/AdminDashboard';
+import { AIStrategyCenter } from './dashboard/AIStrategyCenter';
 
 
 
@@ -471,7 +472,7 @@ export const DashboardPreview: React.FC<DashboardPreviewProps> = ({
             </AnimatePresence>
 
             {/* --- MAIN CONTENT --- */}
-            < main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10" >
+            <main className="flex-1 flex flex-col h-screen overflow-hidden relative z-10">
                 {/* Top Header */}
                 <header className="h-16 border-b border-white/10 bg-white/[0.02] backdrop-blur-2xl flex items-center justify-between px-6 shrink-0 z-20 relative">
                     <div className="md:hidden flex items-center gap-3">
@@ -505,7 +506,9 @@ export const DashboardPreview: React.FC<DashboardPreviewProps> = ({
                     <AnimatePresence mode="wait">
 
                         {activeTab === 'ai-analytics' && (
-                            <MissionControl />
+                            <motion.div key="ai-analytics" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                                <AIStrategyCenter />
+                            </motion.div>
                         )}
                         {activeTab === 'overview' && (
                             <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-8">
@@ -812,7 +815,9 @@ export const DashboardPreview: React.FC<DashboardPreviewProps> = ({
                         )}
 
                         {activeTab === 'teaching-hub' && (
-                            <TeacherDashboard />
+                            <motion.div key="teaching-hub" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                                <TeacherDashboard />
+                            </motion.div>
                         )}
 
                         {activeTab === 'awareness' && (

@@ -44,4 +44,5 @@ export interface LabConfig {
     title: string;
     theme: 'red' | 'blue' | 'green' | 'purple' | 'amber' | 'cyan';
     modules: LabModule[];
+    category?: string; // e.g., 'Tech', 'Science', 'Finance' — used for telemetry
 }

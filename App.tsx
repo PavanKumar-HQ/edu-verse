@@ -14,31 +14,30 @@ import { AdminDashboard } from './components/dashboard/AdminDashboard';
 import { AdaptiveQuiz } from './components/quiz/AdaptiveQuiz';
 import { SocialLinks, CommunityEvents } from './components/InstagramGallery';
 import { InteractiveLearning } from './components/InteractiveLearning';
-import { BackgroundEffects } from './components/BackgroundEffects';
-import { TrainerProfile } from './components/TrainerProfile';
-import { PhotoGallery } from './components/PhotoGallery';
-import { VideoTestimonials } from './components/VideoTestimonials';
-import { FAQSection } from './components/FAQSection';
-import { EducationalResources } from './components/EducationalResources';
-import { ResourcesPreview } from './components/ResourcesPreview';
-import { CoursePlayer } from './components/CoursePlayer';
-import { LocalCommunitySpace } from './components/LocalCommunitySpace';
-import { ContactSection } from './components/ContactSection';
-import { InstallPWA } from './components/InstallPWA';
-import { GuidanceQuiz } from './components/GuidanceQuiz';
-import { Toast } from './components/Toast';
-import { AstraTutor } from './components/holographic/AstraTutor';
-import { SessionManager } from './components/SessionManager';
-import { CybersecurityLab } from './components/cybersecurity/CybersecurityLab';
-import { StudentInteractiveZone, EasterEggRobot } from './components/GamificationComponents';
-import { RecommendedFeed } from './components/recommendation/RecommendedFeed';
-import { AdaptiveBackground, LearningState } from './components/backgrounds/AdaptiveBackground';
-
 import { COURSES, SECTORS, VIDEOS, GALLERY_DATA, FAQS, VIDEO_TESTIMONIALS, TRAINERS_DATA, EDUCATIONAL_RESOURCES, MOCK_AMBASSADORS } from './constants';
 import { VideoResource, GalleryItem, FAQItem, VideoTestimonial, Student, EducationalResource, ResourceType, Course, Trainer, Ambassador, LearningMood } from './types';
 import { motion as motionBase, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { DailyWisdom } from './components/DailyWisdom';
 import { useLearningDNA } from './hooks/useLearningDNA';
+
+import { AppProvider } from './components/context/AppContext';
+import { AdaptiveBackground } from './components/backgrounds/AdaptiveBackground';
+import { RecommendedFeed } from './components/recommendation/RecommendedFeed';
+import { AstraTutor } from './components/holographic/AstraTutor';
+import { Toast } from './components/Toast';
+import { StudentInteractiveZone, EasterEggRobot } from './components/GamificationComponents';
+import { VideoTestimonials } from './components/VideoTestimonials';
+import { ResourcesPreview } from './components/ResourcesPreview';
+import { PhotoGallery } from './components/PhotoGallery';
+import { FAQSection } from './components/FAQSection';
+import { ContactSection } from './components/ContactSection';
+import { CoursePlayer } from './components/CoursePlayer';
+import { LocalCommunitySpace } from './components/LocalCommunitySpace';
+import { EducationalResources } from './components/EducationalResources';
+import { CybersecurityLab } from './components/cybersecurity/CybersecurityLab';
+import { GuidanceQuiz } from './components/GuidanceQuiz';
+import { SessionManager } from './components/SessionManager';
+import { InstallPWA } from './components/InstallPWA';
 
 const motion = motionBase as any;
 
@@ -46,12 +45,213 @@ type View = 'home' | 'courses' | 'services' | 'resources' | 'dashboard' | 'cours
 type ViewMode = 'explorer' | 'workspace' | 'teacher';
 type AppState = 'loading' | 'login' | 'app';
 
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: "easeOut" }
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: { duration: 0.3, ease: "easeIn" }
+  }
+};
+
+const Navbar = ({
+  isFocusMode,
+  viewMode,
+  currentView,
+  handleNavigation,
+  handleModeChange,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen
+}: {
+  isFocusMode: boolean;
+  viewMode: ViewMode;
+  currentView: View;
+  handleNavigation: (v: View) => void;
+  handleModeChange: () => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (v: boolean) => void;
+}) => {
+  if (isFocusMode) return null;
+
+  return (
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, ease: "circOut" }}
+        className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl border-b border-white/10"
+      >
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex items-center gap-2 cursor-pointer group"
+                onClick={() => handleNavigation('home')}
+              >
+                <img
+                  src="/geniusphere-logo.jpg"
+                  alt="Geniusphere Logo"
+                  className="w-9 h-9 rounded-xl object-cover shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform border border-white/10"
+                />
+                <span className="text-xl font-bold text-white tracking-tight group-hover:text-cyanGlow transition-colors">Geniusphere</span>
+              </div>
+            </div>
+
+            <div className="hidden md:flex items-center gap-8">
+              {viewMode === 'explorer' && (
+                <>
+                  {['home', 'courses', 'dashboard', 'services', 'resources'].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => handleNavigation(item as View)}
+                      className={`capitalize text-sm font-medium hover:text-cyanGlow transition-colors ${currentView === item ? 'text-cyanGlow' : 'text-slate-300'}`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                  <div className="h-4 w-px bg-white/10"></div>
+                </>
+              )}
+
+              <button
+                onClick={handleModeChange}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all group hover:border-cyanGlow/30"
+              >
+                <div className="flex items-center gap-2">
+                  {viewMode === 'explorer' ? <User size={16} className="text-blue-400" /> : <LayoutGrid size={16} className={viewMode === 'teacher' ? "text-purple-400" : "text-emerald-400"} />}
+                  <span className="text-xs font-medium text-white">
+                    {viewMode === 'explorer'
+                      ? 'Student View'
+                      : (viewMode === 'teacher' ? 'Teacher Dashboard' : 'Admin Dashboard')}
+                  </span>
+                </div>
+              </button>
+            </div>
+
+            <button className="md:hidden text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+      </motion.nav>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="fixed top-20 left-0 right-0 z-40 bg-black/95 border-b border-white/10 px-6 overflow-hidden md:hidden"
+          >
+            <div className="py-4 space-y-4">
+              {viewMode === 'explorer' ? (
+                <>
+                  {['home', 'courses', 'dashboard', 'services', 'resources'].map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => {
+                        handleNavigation(item as View);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`block w-full text-left capitalize text-sm font-medium hover:text-cyanGlow transition-colors ${currentView === item ? 'text-cyanGlow' : 'text-slate-300'}`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </>
+              ) : (
+                <div className="text-sm text-slate-500">Admin Menu is Desktop Only</div>
+              )}
+              <div className="h-px w-full bg-white/10 my-2"></div>
+              <button
+                onClick={() => { handleModeChange(); setIsMobileMenuOpen(false); }}
+                className="flex items-center gap-2 w-full text-left bg-white/5 p-3 rounded-lg"
+              >
+                {viewMode === 'explorer' ? <User size={16} className="text-blue-400" /> : <LayoutGrid size={16} className={viewMode === 'teacher' ? "text-purple-400" : "text-emerald-400"} />}
+                <span className="text-sm font-medium text-white">
+                  {viewMode === 'explorer'
+                    ? 'Switch to Teacher'
+                    : (viewMode === 'teacher' ? 'Switch to Admin' : 'Switch to Student')}
+                </span>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+const Hero = ({ mood, onNavigate, onViewLibrary }: { mood: LearningMood; onNavigate: (v: View) => void; onViewLibrary: (t: ResourceType) => void }) => (
+  <section className="pt-40 pb-32 px-6 relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+    <div className="container mx-auto text-center relative z-10 max-w-5xl">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-slate-800/30 border border-white/10 backdrop-blur-md text-blue-300 text-xs font-bold uppercase tracking-widest mb-10 shadow-xl shadow-black/50"
+      >
+        <ShieldCheck size={14} className="text-cyanGlow" />
+        <span>Verified Educational Platform</span>
+      </motion.div>
+
+      <motion.h1
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.8, ease: "backOut" }}
+        className="text-6xl md:text-8xl font-extrabold text-white mb-8 tracking-tight leading-[1.1] drop-shadow-2xl"
+      >
+        Unlock Your <br />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyanGlow to-softMint text-glow">
+          Digital Potential
+        </span>
+      </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.8 }}
+        className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-14 leading-relaxed drop-shadow-md"
+      >
+        Geniusphere is your gateway to future-ready skills. Master AI, Finance, and Professional Development in a verified, immersive ecosystem.
+      </motion.p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="flex flex-col sm:flex-row items-center justify-center gap-6"
+      >
+        <motion.button
+          whileHover={{ scale: 1.05, boxShadow: "0px 0px 40px rgba(59, 130, 246, 0.4)" }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onNavigate('courses')}
+          className="px-10 py-5 rounded-2xl bg-electric text-white font-bold shadow-2xl shadow-blue-600/30 w-full sm:w-auto flex items-center justify-center gap-3 text-lg"
+        >
+          Start Learning <Sparkles size={20} />
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onViewLibrary('video')}
+          className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold w-full sm:w-auto hover:border-white/20 text-lg backdrop-blur-md flex items-center justify-center gap-2"
+        >
+          <Video size={20} /> Resource Hub
+        </motion.button>
+      </motion.div>
+    </div>
+  </section>
+);
+
 function App() {
   // Always start with loading screen to show animation and login options
-  const [appState, setAppState] = useState<AppState>('loading');
-
-  // Keep view preferences if you want, or reset them too. 
-  // For now, I'll reset view to 'home' to ensure a fresh start flow.
+  const [appState, setAppState] = useState<AppState>('login');
   const [currentView, setCurrentView] = useState<View>('home');
   const [viewMode, setViewMode] = useState<ViewMode>('explorer');
   const { dna } = useLearningDNA();
@@ -124,11 +324,17 @@ function App() {
   useEffect(() => {
     const isCompleted = localStorage.getItem('geniusphere_onboarding_completed_v2');
     if (!isCompleted && appState === 'app') {
-      // Small delay to let animations finish
       const timer = setTimeout(() => setShowGuidance(true), 1000);
       return () => clearTimeout(timer);
     }
   }, [appState]);
+
+  // Real-time Burnout Protection
+  useEffect(() => {
+    if (dna.burnoutRisk > 75) {
+      setToastMessage("⚠️ High Burnout Risk Detected. Astra recommends a 5-minute cognitive reset.");
+    }
+  }, [dna.burnoutRisk]);
 
   const handleLoadingComplete = () => {
     setAppState('login');
@@ -224,21 +430,23 @@ function App() {
   }
 
   const handleModeChange = () => {
+    let nextRole = '';
     if (viewMode === 'explorer') {
-      // Switch to Teacher
       setViewMode('teacher');
       handleNavigation('dashboard');
       setAuthorizedDashboardMode('teacher');
+      nextRole = 'Teacher Intelligence';
     } else if (viewMode === 'teacher') {
-      // Switch to Admin
       setViewMode('workspace');
       handleNavigation('dashboard');
       setAuthorizedDashboardMode('workspace');
+      nextRole = 'Admin Intelligence';
     } else {
-      // Switch to Student
       setViewMode('explorer');
       handleNavigation('home');
+      nextRole = 'Student Explorer';
     }
+    setToastMessage(`Switched to ${nextRole} Mode`);
     setIsMobileMenuOpen(false);
   }
 
@@ -246,195 +454,9 @@ function App() {
     ? courses
     : courses.filter(c => c.sector === selectedSector);
 
-  const Navbar = () => {
-    if (isFocusMode) return null;
-
-    return (
-      <>
-        <motion.nav
-          initial={{ y: -100 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.5, ease: "circOut" }}
-          className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl border-b border-white/10"
-        >
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex items-center gap-2 cursor-pointer group"
-                  onClick={() => handleNavigation('home')}
-                >
-                  <img
-                    src="/geniusphere-logo.jpg"
-                    alt="Geniusphere Logo"
-                    className="w-9 h-9 rounded-xl object-cover shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform border border-white/10"
-                  />
-                  <span className="text-xl font-bold text-white tracking-tight group-hover:text-cyanGlow transition-colors">Geniusphere</span>
-                </div>
-              </div>
-
-              <div className="hidden md:flex items-center gap-8">
-                {viewMode === 'explorer' && (
-                  <>
-                    {['home', 'courses', 'dashboard', 'services', 'resources'].map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => handleNavigation(item as View)}
-                        className={`capitalize text-sm font-medium hover:text-cyanGlow transition-colors ${currentView === item ? 'text-cyanGlow' : 'text-slate-300'}`}
-                      >
-                        {item}
-                      </button>
-                    ))}
-                    <div className="h-4 w-px bg-white/10"></div>
-                  </>
-                )}
-
-                <button
-                  onClick={handleModeChange}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all group hover:border-cyanGlow/30"
-                >
-                  <div className="flex items-center gap-2">
-                    {viewMode === 'explorer' ? <User size={16} className="text-blue-400" /> : <LayoutGrid size={16} className={viewMode === 'teacher' ? "text-purple-400" : "text-emerald-400"} />}
-                    <span className="text-xs font-medium text-white">
-                      {viewMode === 'explorer'
-                        ? 'Student View'
-                        : (viewMode === 'teacher' ? 'Teacher Dashboard' : 'Admin Dashboard')}
-                    </span>
-                  </div>
-                </button>
-              </div>
-
-              <button className="md:hidden text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                {isMobileMenuOpen ? <X /> : <Menu />}
-              </button>
-            </div>
-          </div>
-        </motion.nav>
-
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="fixed top-20 left-0 right-0 z-40 bg-black/95 border-b border-white/10 px-6 overflow-hidden md:hidden"
-            >
-              <div className="py-4 space-y-4">
-                {viewMode === 'explorer' ? (
-                  <>
-                    {['home', 'courses', 'dashboard', 'services', 'resources'].map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => {
-                          handleNavigation(item as View);
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`block w-full text-left capitalize text-sm font-medium hover:text-cyanGlow transition-colors ${currentView === item ? 'text-cyanGlow' : 'text-slate-300'}`}
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </>
-                ) : (
-                  <div className="text-sm text-slate-500">Admin Menu is Desktop Only</div>
-                )}
-                <div className="h-px w-full bg-white/10 my-2"></div>
-                <button
-                  onClick={() => { handleModeChange(); setIsMobileMenuOpen(false); }}
-                  className="flex items-center gap-2 w-full text-left bg-white/5 p-3 rounded-lg"
-                >
-                  {viewMode === 'explorer' ? <User size={16} className="text-blue-400" /> : <LayoutGrid size={16} className={viewMode === 'teacher' ? "text-purple-400" : "text-emerald-400"} />}
-                  <span className="text-sm font-medium text-white">
-                    {viewMode === 'explorer'
-                      ? 'Switch to Teacher'
-                      : (viewMode === 'teacher' ? 'Switch to Admin' : 'Switch to Student')}
-                  </span>
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </>
-    );
-  };
-
-  const Hero = () => (
-    <section className="pt-40 pb-32 px-6 relative overflow-hidden min-h-[90vh] flex items-center justify-center">
-      <div className="container mx-auto text-center relative z-10 max-w-5xl">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-slate-800/30 border border-white/10 backdrop-blur-md text-blue-300 text-xs font-bold uppercase tracking-widest mb-10 shadow-xl shadow-black/50"
-        >
-          <ShieldCheck size={14} className="text-cyanGlow" />
-          <span>Verified Educational Platform</span>
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8, ease: "backOut" }}
-          className="text-6xl md:text-8xl font-extrabold text-white mb-8 tracking-tight leading-[1.1] drop-shadow-2xl"
-        >
-          Unlock Your <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyanGlow to-softMint text-glow">
-            Digital Potential
-          </span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-14 leading-relaxed drop-shadow-md"
-        >
-          Geniusphere is your gateway to future-ready skills. Master AI, Finance, and Professional Development in a verified, immersive ecosystem.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6"
-        >
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 40px rgba(59, 130, 246, 0.4)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleNavigation('courses')}
-            className="px-10 py-5 rounded-2xl bg-electric text-white font-bold shadow-2xl shadow-blue-600/30 w-full sm:w-auto flex items-center justify-center gap-3 text-lg"
-          >
-            Start Learning <Sparkles size={20} />
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleViewLibrary('video')}
-            className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold w-full sm:w-auto hover:border-white/20 text-lg backdrop-blur-md flex items-center justify-center gap-2"
-          >
-            <Video size={20} /> Resource Hub
-          </motion.button>
-        </motion.div>
-      </div>
-    </section>
-  );
-
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: "easeOut" }
-    },
-    exit: {
-      opacity: 0,
-      y: -20,
-      transition: { duration: 0.3, ease: "easeIn" }
-    }
-  };
 
   return (
+    <AppProvider>
     <div className="min-h-screen font-sans text-slate-50 selection:bg-cyanGlow/30 selection:text-white overflow-x-hidden relative">
       {/* GLOBAL BACKGROUND - Z-Index 0 */}
       <AdaptiveBackground state={
@@ -443,11 +465,6 @@ function App() {
         (currentView === 'courses' ? 'ai' : 'focus'))
       } />
 
-      {appState === 'loading' && (
-        <div className="relative z-50">
-          <LoadingScreen onComplete={handleLoadingComplete} />
-        </div>
-      )}
 
       {appState === 'login' && (
         <div className="relative z-40">
@@ -458,58 +475,43 @@ function App() {
       {appState === 'app' && (
         <div className="relative z-10">
           {/* Show Navbar on all pages except Course Player and Local Space. */}
-          {currentView !== 'course-player' && currentView !== 'local-space' && <Navbar />}
+          {currentView !== 'course-player' && currentView !== 'local-space' && (
+            <Navbar
+              isFocusMode={isFocusMode}
+              viewMode={viewMode}
+              currentView={currentView}
+              handleNavigation={handleNavigation}
+              handleModeChange={handleModeChange}
+              isMobileMenuOpen={isMobileMenuOpen}
+              setIsMobileMenuOpen={setIsMobileMenuOpen}
+            />
+          )}
 
           <main className="min-h-screen">
-            <AnimatePresence mode="wait">
-              {(viewMode === 'workspace' || viewMode === 'teacher') && currentView === 'dashboard' ? (
+            <AnimatePresence>
+              {currentView === 'home' && (
                 <motion.div
-                  key="dashboard"
+                  key="home"
                   variants={pageVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  className="pt-20"
                 >
-                  <DashboardPreview
-                    videos={videos} setVideos={setVideos}
-                    galleryData={galleryData} setGalleryData={setGalleryData}
-                    faqs={faqs} setFaqs={setFaqs}
-                    testimonials={testimonials} setTestimonials={setTestimonials}
-                    trainers={trainers} setTrainers={setTrainers}
-                    resources={resources} setResources={setResources}
-                    courses={courses} setCourses={setCourses}
-                    ambassadors={ambassadors} setAmbassadors={setAmbassadors}
-                    onSwitchMode={handleModeChange}
-                    mode={viewMode === 'teacher' ? 'teacher' : 'admin'}
-                  />
+                  <Hero mood={mood} onNavigate={handleNavigation} onViewLibrary={handleViewLibrary} />
+                  <WhatIsGeniusphere />
+                  <SectorTiles onExplore={handleSectorExplore} />
+                  <RecommendedFeed userId="user_123" />
+                  <StudentInteractiveZone />
+                  <VideoTestimonials items={testimonials} />
+                  <ServicesGrid />
+                  <ResourcesPreview onViewAll={handleViewLibrary} />
+                  <PhotoGallery galleryData={galleryData} onNavigate={handleNavigation} />
+                  <CommunityEvents ambassadors={ambassadors} />
+                  <FAQSection items={faqs} />
+                  <SocialLinks />
+                  <ContactSection />
                 </motion.div>
-              ) : (
-                <>
-                  {currentView === 'home' && (
-                    <motion.div
-                      key="home"
-                      variants={pageVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
-                      <Hero mood={mood} />
-                      <WhatIsGeniusphere />
-                      <SectorTiles onExplore={handleSectorExplore} />
-                      <RecommendedFeed userId="user_123" />
-                      <StudentInteractiveZone />
-                      <VideoTestimonials items={testimonials} />
-                      <ServicesGrid />
-                      <ResourcesPreview onViewAll={handleViewLibrary} />
-                      <TrainerProfile trainer={trainers[0]} />
-                      <PhotoGallery galleryData={galleryData} onNavigate={handleNavigation} />
-                      <CommunityEvents ambassadors={ambassadors} />
-                      <FAQSection items={faqs} />
-                      <SocialLinks />
-                      <ContactSection />
-                    </motion.div>
-                  )}
+              )}
 
                   {currentView === 'course-player' && activeCourse && (
                     <motion.div
@@ -619,18 +621,47 @@ function App() {
 
                   {currentView === 'dashboard' && (
                     <motion.div
-                      key="student-dashboard"
+                      key="dashboard"
                       variants={pageVariants}
                       initial="initial"
                       animate="animate"
                       exit="exit"
-                      className="pt-32 pb-20 container mx-auto px-6"
+                      className={viewMode === 'explorer' ? "pt-32 pb-20 container mx-auto px-6" : ""}
                     >
-                      <MissionControl />
+                      {viewMode === 'explorer' ? (
+                        <MissionControl />
+                      ) : (
+                        <DashboardPreview
+                          videos={videos}
+                          setVideos={setVideos}
+                          galleryData={galleryData}
+                          setGalleryData={setGalleryData}
+                          faqs={faqs}
+                          setFaqs={setFaqs}
+                          testimonials={testimonials}
+                          setTestimonials={setTestimonials}
+                          trainers={trainers}
+                          setTrainers={setTrainers}
+                          resources={resources}
+                          setResources={setResources}
+                          courses={courses}
+                          setCourses={setCourses}
+                          ambassadors={ambassadors}
+                          setAmbassadors={setAmbassadors}
+                          onSwitchMode={handleModeChange}
+                          mode={viewMode === 'teacher' ? 'teacher' : 'admin'}
+                        />
+                      )}
                     </motion.div>
                   )}
-                </>
-              )}
+                  {!['home', 'courses', 'services', 'resources', 'dashboard', 'course-player', 'local-space'].includes(currentView) && (
+                    <div className="flex items-center justify-center min-h-[50vh]">
+                      <div className="text-center">
+                        <h2 className="text-2xl font-bold mb-4">View not found</h2>
+                        <button onClick={() => setCurrentView('home')} className="px-6 py-2 bg-blue-600 rounded-xl">Return Home</button>
+                      </div>
+                    </div>
+                  )}
             </AnimatePresence>
           </main>
 
@@ -691,7 +722,7 @@ function App() {
           </AnimatePresence>
 
           <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
-          <AstraTutor dna={dna} />
+          <AstraTutor />
 
           {viewMode === 'explorer' && (
             <DailyWisdom
@@ -738,6 +769,7 @@ function App() {
         </div>
       )}
     </div>
+    </AppProvider>
   );
 }
 

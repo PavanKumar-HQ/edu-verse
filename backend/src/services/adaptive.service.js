@@ -65,6 +65,56 @@ class AdaptiveService {
 
         return { risk, probability };
     }
+
+    /**
+     * Calculates Learning Efficiency Score (knowledge gained per hour).
+     */
+    calculateEfficiency(totalScore, totalTimeSeconds) {
+        if (totalTimeSeconds === 0) return 0;
+        const hours = totalTimeSeconds / 3600;
+        return (totalScore / hours).toFixed(2);
+    }
+
+    /**
+     * Predicts Learning Momentum (trend based on recent performance).
+     */
+    predictMomentum(recentScores) {
+        if (recentScores.length < 2) return 'Steady';
+        
+        const sum = recentScores.reduce((a, b) => a + b, 0);
+        const avg = sum / recentScores.length;
+        const lastScore = recentScores[recentScores.length - 1];
+        
+        if (lastScore > avg + 10) return 'Accelerating';
+        if (lastScore < avg - 10) return 'Slowing';
+        return 'Steady';
+    }
+
+    /**
+     * Categorizes students into Academic Risk segments.
+     */
+    segmentAcademicRisk(metrics) {
+        const { attendance, mastery, engagement } = metrics;
+        
+        if (mastery < 0.4 && engagement < 0.3) return 'Critical Risk';
+        if (mastery < 0.6 || attendance < 0.6) return 'Declining';
+        if (mastery > 0.8 && engagement > 0.8) return 'Stable/Honors';
+        return 'Improving/Steady';
+    }
+
+    /**
+     * Adjusts content density and challenge pacing for Multi-Speed Learning.
+     * mode: 'sprint' | 'balanced' | 'deep'
+     */
+    adjustPacing(mode, baseDifficulty) {
+        const settings = {
+            'sprint': { density: 'high', revisionFrequency: 'low', challengePacing: 'fast' },
+            'balanced': { density: 'medium', revisionFrequency: 'medium', challengePacing: 'normal' },
+            'deep': { density: 'very-high', revisionFrequency: 'high', challengePacing: 'slow' }
+        };
+        
+        return settings[mode] || settings['balanced'];
+    }
 }
 
 export default new AdaptiveService();

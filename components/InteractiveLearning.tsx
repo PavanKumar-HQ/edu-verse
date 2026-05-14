@@ -915,7 +915,7 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     const [quizAnswer, setQuizAnswer] = React.useState<number | null>(null);
     
     // AI Adaptive Learning State
-    const { currentDifficulty, logProgress } = useAdaptiveLearning("user_123"); // Placeholder ID
+    const { currentDifficulty, logProgress } = useAdaptiveLearning();
     const [startTime] = React.useState(Date.now());
     const [retryCount, setRetryCount] = React.useState(0);
 
@@ -956,6 +956,21 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
         const timer = setTimeout(() => setIsReady(true), 1200);
         return () => clearTimeout(timer);
     }, []);
+
+    // Declare handleClose early as a regular function so it's available in override blocks
+    // (avoids TS2448 'used before declaration' with const/let in switch-like early returns)
+    function handleClose() {
+        logProgress({
+            labId: simulationId,
+            sector: moduleData?.category || 'Tech',
+            score: currentChapterIndex >= (moduleData?.chapters?.length ?? 0) ? 100 : 70,
+            maxPossibleScore: 100,
+            timeSpentSeconds: Math.floor((Date.now() - startTime) / 1000),
+            retryCount: retryCount,
+            difficultyLevel: currentDifficulty
+        });
+        onClose();
+    }
 
     // Show loading screen for ALL labs (overrides + universal)
     if (!isReady) {
@@ -999,9 +1014,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // AI Lab Override
     if (simulationId === 'sim_ai_neural') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-slate-950">
+            <LabWrapper onClose={handleClose} bg="bg-slate-950">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <AiLabApp onClose={onClose} />
+                    <AiLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1010,9 +1025,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Banking Lab for Finance simulations
     if (simulationId === 'sim_finance_budget') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <BankingLabApp onClose={onClose} />
+                    <BankingLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1021,9 +1036,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Communication Lab for Soft Skills
     if (simulationId === 'sim_soft_comm') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#0A0E1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#0A0E1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <CommunicationLabApp onClose={onClose} />
+                    <CommunicationLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1032,9 +1047,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Professional Skills Lab
     if (simulationId === 'sim_prof_skills') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-gradient-to-br from-[#0B1220] to-[#111827]">
+            <LabWrapper onClose={handleClose} bg="bg-gradient-to-br from-[#0B1220] to-[#111827]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <ProfessionalSkillsLabApp onClose={onClose} />
+                    <ProfessionalSkillsLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1043,9 +1058,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Social Profile Development Lab
     if (simulationId === 'sim_social_profile') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#0B1220]">
+            <LabWrapper onClose={handleClose} bg="bg-[#0B1220]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <SocialProfileLabApp onClose={onClose} />
+                    <SocialProfileLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1054,9 +1069,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Fintech Discovery Lab
     if (simulationId === 'sim_fintech') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <FintechLabApp onClose={onClose} />
+                    <FintechLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1065,9 +1080,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Stock Market Basics Lab
     if (simulationId === 'sim_stock_market') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <StockMarketLabApp onClose={onClose} />
+                    <StockMarketLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1076,9 +1091,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Global Economics Simulation Lab
     if (simulationId === 'sim_global_economy') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <GlobalEconomyLabApp onClose={onClose} />
+                    <GlobalEconomyLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1087,9 +1102,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Cryptocurrency Deep Dive Lab
     if (simulationId === 'sim_crypto') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#050816]">
+            <LabWrapper onClose={handleClose} bg="bg-[#050816]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <CryptoLabApp onClose={onClose} />
+                    <CryptoLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1098,9 +1113,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Introduction to Finance Lab
     if (simulationId === 'sim_intro_finance') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <IntroFinanceLabApp onClose={onClose} />
+                    <IntroFinanceLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1109,9 +1124,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Digital Privacy & Footprint Lab
     if (simulationId === 'sim_digital_privacy') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <DigitalPrivacyLabApp onClose={onClose} />
+                    <DigitalPrivacyLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1120,9 +1135,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom IoT Cybersecurity Lab
     if (simulationId === 'sim_iot_smart') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <IoTLabApp onClose={onClose} />
+                    <IoTLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1131,9 +1146,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // Blockchain Lab Override (TrustLink)
     if (simulationId === 'sim_blockchain_hash') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <BlockchainLabApp onClose={onClose} />
+                    <BlockchainLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1142,9 +1157,9 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     // SPECIAL OVERRIDE: Use the custom Microsoft Office Real-World Skills Lab
     if (simulationId === 'sim_office') {
         return (
-            <LabWrapper onClose={onClose} bg="bg-[#070B1A]">
+            <LabWrapper onClose={handleClose} bg="bg-[#070B1A]">
                 <div className="h-full w-full min-w-[320px] md:min-w-0">
-                    <MicrosoftOfficeLabApp onClose={onClose} />
+                    <MicrosoftOfficeLabApp onClose={handleClose} />
                 </div>
             </LabWrapper>
         );
@@ -1159,7 +1174,7 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     }, [simulationId, isNewSystemLab]);
 
     if (isNewSystemLab) {
-        return <UniversalLab simulationId={simulationId} onClose={onClose} />;
+        return <UniversalLab simulationId={simulationId} onClose={handleClose} />;
     }
 
     if (!moduleData) {
@@ -1169,19 +1184,21 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
     const currentChapter = moduleData.chapters[currentChapterIndex];
     const isCompleted = currentChapterIndex >= moduleData.chapters.length;
 
-    const handleNext = () => {
-        if (currentChapterIndex < moduleData.chapters.length - 1) {
-            // Log telemetry for the current chapter
-            logProgress({
-                labId: simulationId,
-                sector: moduleData.category,
-                score: isQuizCorrect ? 100 : 0,
-                maxPossibleScore: 100,
-                timeSpentSeconds: Math.floor((Date.now() - startTime) / 1000),
-                retryCount: retryCount,
-                difficultyLevel: currentDifficulty
-            });
+    // (handleClose is declared as a function above the early-return override blocks)
 
+    const handleNext = () => {
+        // Log telemetry for the current chapter
+        logProgress({
+            labId: simulationId,
+            sector: moduleData?.category || 'Tech',
+            score: isQuizCorrect || currentChapter?.type !== 'quiz' ? 100 : 0,
+            maxPossibleScore: 100,
+            timeSpentSeconds: Math.floor((Date.now() - startTime) / 1000),
+            retryCount: retryCount,
+            difficultyLevel: currentDifficulty
+        });
+
+        if (currentChapterIndex < moduleData.chapters.length - 1) {
             setCurrentChapterIndex(prev => prev + 1);
             setQuizAnswer(null);
             setRetryCount(0);
@@ -1247,7 +1264,7 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
             <div className="flex-1 overflow-hidden relative">
                 <AnimatePresence mode="wait">
                     {isCompleted ? (
-                        <CertificateView key="certificate" courseName={moduleData.title} onClose={onClose} />
+                        <CertificateView key="certificate" courseName={moduleData.title} onClose={handleClose} />
                     ) : currentChapter ? (
                         <motion.div
                             key={currentChapter.id}
@@ -1340,7 +1357,7 @@ export const InteractiveLearning: React.FC<InteractiveLearningProps> = ({ simula
             </div>
             <div className="fixed top-4 right-4 z-[999999] pointer-events-auto">
                 <button
-                    onClick={(e) => { e.stopPropagation(); onClose(); }}
+                    onClick={(e) => { e.stopPropagation(); handleClose(); }}
                     className="p-3 bg-slate-800 hover:bg-red-600 text-white rounded-full transition-all border border-white/10 shadow-2xl active:scale-90"
                     title="Exit Lab"
                     aria-label="Exit Lab"

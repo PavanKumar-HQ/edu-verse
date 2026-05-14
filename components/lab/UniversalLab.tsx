@@ -10,6 +10,7 @@ import { TEACHING_LAB_CONFIGS } from './TeachingLabData';
 import { STUDENT_LAB_CONFIGS } from './StudentLabData';
 import { LabAnimationPlayer } from './LabAnimationPlayer';
 import { LabModule } from './LabTypes';
+import { useAdaptiveLearning } from '../../hooks/useAdaptiveLearning';
 
 const ALL_LAB_CONFIGS = { ...LAB_CONFIGS, ...TEACHING_LAB_CONFIGS, ...STUDENT_LAB_CONFIGS };
 
@@ -101,6 +102,10 @@ export const UniversalLab: React.FC<UniversalLabProps> = ({ simulationId, onClos
     const [isPlaying, setIsPlaying] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    // AI Adaptive Telemetry
+    const { logProgress, currentDifficulty } = useAdaptiveLearning();
+    const [startTime] = useState(Date.now());
+
     // Derived state
     const currentModule = config.modules.find(m => m.id === selectedModuleId) || config.modules[0];
     const totalSteps = currentModule.animationSteps.length;
@@ -133,6 +138,17 @@ export const UniversalLab: React.FC<UniversalLabProps> = ({ simulationId, onClos
 
     // Handlers
     const handleNext = () => {
+        // Log telemetry for the current step
+        logProgress({
+            labId: simulationId,
+            sector: config.category || 'Tech',
+            score: 100, // Concept labs grant full score for progress
+            maxPossibleScore: 100,
+            timeSpentSeconds: Math.floor((Date.now() - startTime) / 1000),
+            retryCount: 0,
+            difficultyLevel: currentDifficulty
+        });
+
         if (currentStep < totalSteps - 1) {
             setCurrentStep(prev => prev + 1);
         } else {

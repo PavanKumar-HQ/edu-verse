@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:full": "npm run dev & npm run dev:backend",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "backend:install": "cd backend && npm install"
   },
   "dependencies": {
     "@google/genai": "^1.30.0",

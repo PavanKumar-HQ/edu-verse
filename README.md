@@ -1,5 +1,4 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+
 
 # 🌌 Geniusphere
 ### **Advanced Multi-Dimensional Interactive Learning Ecosystem**
@@ -17,6 +16,19 @@ Geniusphere is a state-of-the-art educational platform designed to bridge the ga
 
 ## ✨ Key Highlights
 
+### ⚡ **AI-Driven Adaptive Learning Engine**
+The core of Geniusphere X is a powerful AI backend that personalizes every student's journey:
+- **Concept Compression Engine**: AI detects understanding levels and compresses long topics into high-impact micro-learning summaries.
+- **Analogy Generator**: Translates complex technical concepts into relatable, real-world metaphors in real-time.
+- **Error Pattern Intelligence**: Identifies recurring mistake types (conceptual vs. careless) and adapts content delivery accordingly.
+- **Dynamic Revision Weighting**: Assigns priority scores to topics based on forgetting rates and exam importance.
+
+### 📊 **Astra Strategy Center (Admin & Teacher)**
+A dedicated intelligence hub for institutional oversight:
+- **Behavioral Analytics**: Track "Neural Momentum" and "Learning Efficiency" (XP/hour) across the entire class.
+- **Academic Risk Prediction**: AI-driven segmentation identifies at-risk students before they fall behind.
+- **Strategy Orchestration**: Launch class-wide interventions or visual simulations based on class-wide weakness detection.
+
 ### 🛡️ **Advanced Cybersecurity Simulation Lab**
 Dive into a realistic cyber-defense environment featuring:
 - **17+ Interactive Attack Modules**: Phishing, Ransomware, SQL Injection, DDoS, and more.
@@ -29,17 +41,6 @@ A modular library of **14+ specialized labs**, each serving as a standalone inte
 - **Fintech & Crypto**: Banking simulators, blockchain explorers, and stock market terminals.
 - **Professional Skills**: Workplace communication simulators and time-management matrices.
 
-### 📊 **Unified Admin & Teacher Console**
-A robust management system for institutional oversight:
-- **Course Builder**: Custom curriculum design with modular lesson planning.
-- **Real-time Analytics**: Track student engagement, revenue, and active participants.
-- **Resource Management**: Centralized hub for videos, ebooks, and educational blogs.
-
-### 🎨 **Premium UI/UX Experience**
-- **Fluid Animations**: Powered by `framer-motion` for a smooth, 60fps cinematic feel.
-- **Modern Design**: Glassmorphism, vibrant gradients, and intuitive mobile-responsive layouts.
-- **Gamified Progression**: Earn badges, rank on leaderboards, and unlock personalized certificates.
-
 ---
 
 ## 🛠️ Technical Stack
@@ -47,9 +48,10 @@ A robust management system for institutional oversight:
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | React 19, Vite, Framer Motion, Lucide React, Recharts |
-| **Backend** | Node.js, Express, dotenv, CORS |
-| **Database** | MongoDB (via Mongoose) |
-| **Styling** | Vanilla CSS, TailwindCSS (selected labs) |
+| **AI Backend** | Node.js, Express, Google Gemini AI (Vertex AI) |
+| **Intelligence** | Adaptive Learning Algorithms, Probability-based Risk Models |
+| **Database** | MongoDB (Persistence) |
+| **Styling** | Vanilla CSS, TailwindCSS (selected labs), Glassmorphism |
 
 ---
 
@@ -57,13 +59,12 @@ A robust management system for institutional oversight:
 
 ```bash
 Geniusphere/
-├── 📁 backend/         # Node.js Express server & API models
-├── 📁 components/      # Shared UI components (Dashboard, Lab Wrappers, etc.)
+├── 📁 backend/         # AI Service, Adaptive Analytics, & Express Server
+├── 📁 components/      # UI Hub (Astra Assistant, Strategy Center, Dashboards)
 ├── 📁 labs/            # 14+ standalone interactive lab applications
-├── 📁 public/          # Static assets and icons
-├── 📄 App.tsx          # Main routing and global state hub
-├── 📄 constants.ts     # Central data repository (Courses, Resources, etc.)
-└── 📄 package.json     # Main project dependencies
+├── 📁 services/        # API Client & Neural Bridge
+├── 📄 App.tsx          # Main routing & Global Navigation Hub
+└── 📄 package.json     # Integrated full-stack scripts
 ```
 
 ---
@@ -72,31 +73,25 @@ Geniusphere/
 
 ### **1. Prerequisites**
 - **Node.js** (v18.x or higher)
-- **npm** or **yarn**
+- **Gemini API Key** (Required for AI features)
 
-### **2. Frontend Setup**
+### **2. Setup & Environment**
 ```bash
-# Install dependencies
+# Install root and backend dependencies
 npm install
+cd backend && npm install && cd ..
 
-# Start the development server
-npm run dev
+# Configure API Key
+echo "GEMINI_API_KEY=your_key_here" > backend/.env
 ```
-Navigate to `http://localhost:5173` to view the platform.
 
-### **3. Backend Setup (Optional)**
+### **3. Launch the Ecosystem**
+Start the **Frontend** and **AI Backend** concurrently with a single command:
 ```bash
-# Navigate to backend directory
-cd backend
-
-# Install dependencies
-npm install
-
-# (Optional) Create a .env file with MONGODB_URI
-# Run the server
-npm start
+npm run dev:full
 ```
-The backend runs on `http://localhost:5001`.
+- **Frontend**: `http://localhost:5173` (or the next available port)
+- **AI Backend**: `http://localhost:5001`
 
 ---
 
